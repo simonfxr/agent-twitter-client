@@ -148,15 +148,17 @@ export async function requestApi<T>(
           try {
             const chunkObj = JSON.parse(line);
             // If isThinking is true, print in dim color
-            if (chunkObj?.result?.isThinking) {
-              process.stdout.write("\x1b[2m" + chunkObj.result.message + "\x1b[0m");
-              wasThinking = true;
-            } else {
-              if (wasThinking) {
-                process.stdout.write("\n");
-                wasThinking = false;
+            if (chunkObj?.result?.responseType !== "limiter") {
+              if (chunkObj?.result?.isThinking) {
+                process.stdout.write("\x1b[2m" + chunkObj.result.message + "\x1b[0m");
+                wasThinking = true;
+              } else {
+                if (wasThinking) {
+                  process.stdout.write("\n");
+                  wasThinking = false;
+                }
+                process.stdout.write(chunkObj.result.message);
               }
-              process.stdout.write(chunkObj.result.message);
             }
           } catch (e) {
             // If it fails, it's likely partial or invalid JSON, so just ignore
