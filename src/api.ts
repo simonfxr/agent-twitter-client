@@ -52,6 +52,7 @@ export async function requestApi<T>(
   method: 'GET' | 'POST' = 'GET',
   platform: PlatformExtensions = new Platform(),
   body?: any,
+  grok_stream: boolean = false, // FIXME: this is a misplaced hack to enable streaming on Grok3
 ): Promise<RequestApiResult<T>> {
   const headers = new Headers();
   await auth.installTo(headers, url);
@@ -128,16 +129,40 @@ export async function requestApi<T>(
     }
 
     let chunks: any = '';
-    // Read all chunks before attempting to parse
+    let wasThinking: boolean = false;
+
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
-      // Convert chunk to text and append
-      chunks += new TextDecoder().decode(value);
+      const decoded = new TextDecoder().decode(value);
 
-      // Log chunk for debugging (optional)
-      // console.log('Received chunk:', new TextDecoder().decode(value));
+      // Always accumulate everything into 'chunks'
+      chunks += decoded;
+
+      // This is a hack to stream Grok's output
+      if (grok_stream) {
+        const lines = decoded.split(/\r?\n+/);
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          try {
+            const chunkObj = JSON.parse(line);
+            // If isThinking is true, print in dim color
+            if (chunkObj?.result?.isThinking) {
+              process.stdout.write("\x1b[2m" + chunkObj.result.message + "\x1b[0m");
+              wasThinking = true;
+            } else {
+              if (wasThinking) {
+                process.stdout.write("\n");
+                wasThinking = false;
+              }
+              process.stdout.write(chunkObj.result.message);
+            }
+          } catch (e) {
+            // If it fails, it's likely partial or invalid JSON, so just ignore
+          }
+        }
+      }
     }
 
     // Now try to parse the complete accumulated response

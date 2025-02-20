@@ -66,6 +66,7 @@ async function main() {
 
   // 3) Initialize the Space
   const config: SpaceConfig = {
+    record: false,
     mode: 'INTERACTIVE',
     title: 'AI Chat - Dynamic GPT Config',
     description: 'Space that demonstrates dynamic GPT personalities.',

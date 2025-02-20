@@ -796,9 +796,17 @@ export class Scraper {
   public async setCookies(cookies: (string | Cookie)[]): Promise<void> {
     const userAuth = new TwitterUserAuth(this.token, this.getAuthOptions());
     for (const cookie of cookies) {
+      let cookieObj = cookie;
+      if (typeof cookie === 'string') {
+        const parsed = Cookie.parse(cookie);
+        if (!parsed) {
+          throw new Error('Invalid cookie string format');
+        }
+        cookieObj = parsed;
+      }
+
       await userAuth.cookieJar().setCookie(cookie, twUrl);
     }
-
     this.auth = userAuth;
     this.authTrends = userAuth;
   }

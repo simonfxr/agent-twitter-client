@@ -16,6 +16,7 @@ export interface GrokRequest {
   conversationId: string;
   returnSearchResults: boolean;
   returnCitations: boolean;
+  isReasoning: boolean;
   promptMetadata: {
     promptSource: string;
     action: string;
@@ -39,6 +40,7 @@ export interface GrokChatOptions {
   returnSearchResults?: boolean;
   returnCitations?: boolean;
   isReasoning?: boolean;
+  stream?: boolean;
 }
 
 // Internal types for API requests
@@ -118,9 +120,9 @@ export async function grokChat(
   const payload: GrokRequest = {
     responses,
     systemPromptName: '',
-    grokModelOptionId: 'grok-2a',
+    grokModelOptionId: 'grok-3',
     conversationId,
-    isReasoning: options.isReasoning ?? true,
+    isReasoning: options.isReasoning || false,
     returnSearchResults: options.returnSearchResults ?? true,
     returnCitations: options.returnCitations ?? true,
     promptMetadata: {
@@ -140,6 +142,7 @@ export async function grokChat(
     'POST',
     undefined,
     payload,
+    options.stream || false,
   );
 
   if (!res.success) {
