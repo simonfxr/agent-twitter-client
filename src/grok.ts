@@ -38,6 +38,7 @@ export interface GrokChatOptions {
   conversationId?: string; // Optional - will create new if not provided
   returnSearchResults?: boolean;
   returnCitations?: boolean;
+  isReasoning?: boolean;
 }
 
 // Internal types for API requests
@@ -119,6 +120,7 @@ export async function grokChat(
     systemPromptName: '',
     grokModelOptionId: 'grok-2a',
     conversationId,
+    isReasoning: options.isReasoning ?? true,
     returnSearchResults: options.returnSearchResults ?? true,
     returnCitations: options.returnCitations ?? true,
     promptMetadata: {
