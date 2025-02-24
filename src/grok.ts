@@ -189,7 +189,7 @@ export async function grokChat(
 
   // Combine all message chunks into single response
   const fullMessage = chunks
-    .filter((chunk: any) => chunk.result?.message)
+    .filter((chunk: any) => chunk.result?.message && !chunk.result.isThinking)
     .map((chunk: any) => chunk.result.message)
     .join('');
 

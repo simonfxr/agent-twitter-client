@@ -148,7 +148,7 @@ export async function requestApi<T>(
           try {
             const chunkObj = JSON.parse(line);
             // If isThinking is true, print in dim color
-            if (chunkObj?.result?.responseType !== "limiter") {
+            if (chunkObj?.result?.responseType !== "limiter" && !!chunkObj.result.message) {
               if (chunkObj?.result?.isThinking) {
                 process.stdout.write("\x1b[2m" + chunkObj.result.message + "\x1b[0m");
                 wasThinking = true;
